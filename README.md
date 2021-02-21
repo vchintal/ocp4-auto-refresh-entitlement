@@ -5,12 +5,10 @@
 1. Ansible version >= `2.10.6`
 2. `oc` on the $PATH
 3. Python `openshift` package installed. 
-   
    ```
    pip install openshift
    ```
 4. Collection `community.kubernetes` installed 
-
    ``` 
    /usr/bin/ansible-galaxy collection install community.kubernetes
    ```
