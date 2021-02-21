@@ -1,0 +1,18 @@
+﻿kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: ose-cli
+  namespace: {{ namespace }}
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - name: latest
+      annotations: null
+      from:
+        kind: DockerImage
+        name: registry.redhat.io/openshift4/ose-cli
+      generation: 1
+      importPolicy: {}
+      referencePolicy:
+        type: Source

@@ -1,0 +1,35 @@
+﻿kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: {{ build_config_name }}
+  namespace: {{ namespace }}
+  labels:
+    build: {{ build_config_name }}
+spec:
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: '{{ build_config_name }}:latest'
+  resources: {}
+  successfulBuildsHistoryLimit: 5
+  failedBuildsHistoryLimit: 5
+  strategy:
+    type: Docker
+    dockerStrategy:
+      from:
+        kind: ImageStreamTag
+        name: 'ose-cli:latest'
+  postCommit: {}
+  source:
+    type: Binary
+    binary: {}
+  triggers:
+    - type: GitHub
+      github:
+        secret: HfLbYS1v7jzpzFVqp-AX
+    - type: Generic
+      generic:
+        secret: RdnXn5avUAJS4ouRqr54
+    - type: ConfigChange
+  runPolicy: Serial

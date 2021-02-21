@@ -1,0 +1,61 @@
+---
+- hosts: localhost 
+  collections: 
+    - community.kubernetes
+    - community.general
+  vars_prompt:
+    - name: rhsm_username
+      prompt: What is your Red Hat Customer Portal username ?
+      private: false
+    - name: rhsm_password
+      prompt: What is your Red Hat Customer Portal password ?
+      private: true
+  tasks:
+    - name: Create the namespace if it doesn't already exist
+      k8s:
+        template: project.j2
+        state: present
+    - name: Create machineconfig editor role
+      k8s:
+        template: clusterrole.j2
+        state: present
+    - name: Create the rolebinding 
+      k8s:
+        template: clusterrolebinding.j2
+        state: present
+    - name: Generate the user certificate 
+      uri:
+        validate_certs: false
+        url: 'https://subscription.rhsm.redhat.com/subscription/consumers/{{ system_uuid }}' 
+        url_username: "{{ rhsm_username }}"
+        url_password: "{{ rhsm_password }}"
+      register: rhsm_system_info
+    - name: Create the user key file
+      set_fact:
+        user_key_pem: '{{ rhsm_system_info | json_query("json.idCert.key") }}'
+        user_cert_pem: '{{ rhsm_system_info | json_query("json.idCert.cert") }}'
+    - name: Create the secret with user's key, cert and system's UUID 
+      k8s:
+        template: secret.j2
+        state: present
+    - name: Create ose-cli imagestream 
+      k8s:
+        template: imagestream-ose-cli.j2
+        state: present
+    - name: Create imagestream
+      k8s:
+        template: imagestream.j2
+        state: present
+    - name: Create a new build config 
+      k8s:
+        template: buildconfig.j2
+        state: present
+    - name: Create a new build 
+      command:
+        cmd: 'oc start-build {{ container_image_name }} --wait --from-dir=. -n {{ namespace }}'
+        chdir: 'container-image'
+    - name: Create a new deployment 
+      k8s:
+        template: deployment.j2
+        state: present
+        wait: true

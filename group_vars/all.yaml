@@ -1,0 +1,10 @@
+namespace: auto-refresh-entitlement
+system_uuid: 431bc9e6-8507-4737-a6f6-a996899d2e64 
+container_image_name: ocp4-auto-refresh-entitlement
+build_config_name: ocp4-auto-refresh-entitlement
+deployment_name: ocp4-auto-refresh-entitlement
+image_stream_name: ocp4-auto-refresh-entitlement
+secret_name: entitlement
+cluster_role_name: mc-editor
+cluster_role_binding_name: mc-editor-rb
+sleep_seconds: 60

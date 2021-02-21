@@ -1,0 +1,10 @@
+﻿kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: {{ image_stream_name }}
+  namespace: {{ namespace }}
+  labels:
+    build: {{ image_stream_name }}
+spec:
+  lookupPolicy:
+    local: false

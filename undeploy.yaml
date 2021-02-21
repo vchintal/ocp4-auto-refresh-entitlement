@@ -1,0 +1,19 @@
+---
+- hosts: localhost 
+  collections: 
+    - community.kubernetes
+    - community.general
+  tasks:
+    - name: Create the namespace if it doesn't already exist
+      k8s:
+        template: project.j2
+        state: absent
+        wait: true
+    - name: Create machineconfig editor role
+      k8s:
+        template: clusterrole.j2
+        state: absent
+    - name: Create the rolebinding 
+      k8s:
+        template: clusterrolebinding.j2
+        state: absent
