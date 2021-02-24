@@ -71,5 +71,60 @@ The above command will :
 ansible-playbook undeploy.yaml 
 ```
 
+## Testing the subscription on the RHCOS nodes
+
+Before we perform any tests we want to make sure that the **worker** `MachineConfigPool` is no longer in the *Updating* stage. When the following command is run, the output should be `false`.
+
+```sh 
+oc get mcp worker -ojsonpath='{.status.conditions[?(@.type == "Updating")].status}'
+```
+
+Now run the following command to ensure the entitlements are correctly applied.
+
+```sh 
+oc run -it --rm --image=registry.access.redhat.com/ubi8:latest test-entitlement \
+      -- /bin/sh -c "dnf search -y kernel-header --showduplicates"
+```
+
+If the test was successful, you should see output similar to the one below.
+
+```text
+If you don't see a command prompt, try pressing enter.
+Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs)                              20 MB/s |  28 MB     00:01    
+Red Hat Enterprise Linux 8 for x86_64 - AppStream (RPMs)                           16 MB/s |  26 MB     00:01    
+Red Hat Universal Base Image 8 (RPMs) - BaseOS                                    3.1 MB/s | 775 kB     00:00    
+Red Hat Universal Base Image 8 (RPMs) - AppStream                                  29 MB/s | 5.1 MB     00:00    
+Red Hat Universal Base Image 8 (RPMs) - CodeReady Builder                         123 kB/s |  13 kB     00:00    
+========================================== Name Matched: kernel-header ===========================================
+kernel-headers-4.18.0-80.el8.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-80.4.2.el8_0.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-80.1.2.el8_0.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-147.el8.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-80.7.2.el8_0.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-80.11.1.el8_0.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-80.11.2.el8_0.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-80.7.1.el8_0.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-147.0.3.el8_1.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-147.8.1.el8_1.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-147.5.1.el8_1.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-147.0.2.el8_1.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-147.3.1.el8_1.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-193.el8.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-193.13.2.el8_2.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-193.14.3.el8_2.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-193.1.2.el8_2.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-193.6.3.el8_2.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-193.19.1.el8_2.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-240.el8.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-193.28.1.el8_2.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-240.1.1.el8_3.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-240.8.1.el8_3.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-240.10.1.el8_3.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-240.15.1.el8_3.x86_64 : Header files for the Linux kernel for use by glibc
+kernel-headers-4.18.0-240.15.1.el8_3.x86_64 : Header files for the Linux kernel for use by glibc
+Session ended, resume using 'oc attach test-entitlement -c test-entitlement -i -t' command when the pod is running
+pod "test-entitlement" deleted
+```
+
 ## Additional Documentation
 1. https://access.redhat.com/solutions/5807581

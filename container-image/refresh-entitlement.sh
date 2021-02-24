@@ -12,14 +12,6 @@ while true; do
         entitlement_key=$(curl -sk --cert $SUB_USER_CERT_PATH --key $SUB_USER_KEY_PATH 'https://subscription.rhsm.redhat.com/subscription/consumers/'${SYSTEM_UUID}'/entitlements' | jq -r '.[0].certificates[0].key' | base64 -w0)
         entitlement_cert=$(curl -sk --cert $SUB_USER_CERT_PATH --key $SUB_USER_KEY_PATH 'https://subscription.rhsm.redhat.com/subscription/consumers/'${SYSTEM_UUID}'/entitlements' | jq -r '.[0].certificates[0].cert' | base64 -w0)
 
-        # if [ -z $last_entitlement_key ]; then 
-        #     last_entitlement_key=$entitlement_key
-        # fi 
-
-        # if [ -z $last_entitlement_cert ]; then 
-        #     last_entitlement_cert=$entitlement_cert
-        # fi 
-
         echo ">> Checking for MC 50-machine-entitlements"
         oc get mc 50-machine-entitlements
 
@@ -28,15 +20,11 @@ while true; do
             sed  "s/BASE64_ENCODED_KEY_PEM_FILE/${entitlement_key}/g" 50-machine-entitlements.yaml.template > /tmp/50-machine-entitlements.yaml
             sed  -i "s/BASE64_ENCODED_CERT_PEM_FILE/${entitlement_cert}/g" /tmp/50-machine-entitlements.yaml 
             echo ">> File 50-machine-entitlements.yaml created, applying to Openshift"
+
             oc apply -f /tmp/50-machine-entitlements.yaml
-            if [[ $? != 0 ]]; then 
-                echo -e "Applied the 50-machine-entitlements MC successfully\n"
-                last_entitlement_key=$entitlement_key
-                last_entitlement_cert=$entitlement_cert
-            else
-                echo -e ">> Failed to apply the 50-machine-entitlement MC. Exiting!\n"
-                exit
-            fi
+
+            last_entitlement_key=$entitlement_key
+            last_entitlement_cert=$entitlement_cert
         elif [ "$last_entitlement_key" != "$entitlement_key" ] || [ "$last_entitlement_cert" != "$entitlement_cert" ]; then
             
             echo ">> Updated key and/or cert found!"

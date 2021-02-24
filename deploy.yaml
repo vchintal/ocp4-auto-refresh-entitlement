@@ -1,5 +1,6 @@
 ---
 - hosts: localhost 
+  gather_facts: false
   collections: 
     - community.kubernetes
     - community.general
@@ -46,6 +47,7 @@
       k8s:
         template: imagestream.j2
         state: present
+        wait: true
     - name: Create a new build config 
       k8s:
         template: buildconfig.j2
